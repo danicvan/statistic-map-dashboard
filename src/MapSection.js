@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
-import { countryCoordinates } from './countryCoordinates'; // Import the coordinates data
+import { countryCoordinates } from './countryCoordinates';
 import 'leaflet/dist/leaflet.css';
 
-const MapSection = () => {
+const MapSection = ({ onSelectData }) => {
     const [loading, setLoading] = useState(false);
 
-    // Function to handle fetching and displaying COVID data when a marker is clicked
     const handleMarkerClick = async (country) => {
         setLoading(true);
         try {
@@ -14,15 +13,8 @@ const MapSection = () => {
             const data = await response.json();
             setLoading(false);
 
-            // Display data in an alert or other UI
             if (data) {
-                alert(
-                    `Country: ${data.country}\n` +
-                    `Region: ${data.region || 'N/A'}\n` +
-                    `Cases (latest):\n` +
-                    `  Total: ${Object.values(data.cases).pop()?.total || 'N/A'}\n` +
-                    `  New: ${Object.values(data.cases).pop()?.new || 'N/A'}`
-                );
+                onSelectData(data); // Pass the data to the parent Dashboard component
             } else {
                 alert(`No data found for ${country}`);
             }
@@ -33,21 +25,20 @@ const MapSection = () => {
     };
 
     return (
-        <div className="w-full h-96 bg-gray-200 rounded-lg overflow-hidden">
+        <div className="w-full h-96 bg-gray-200 rounded-lg overflow-hidden relative">
             <MapContainer center={[20, 0]} zoom={2} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
-                {/* Render CircleMarkers from the coordinates file */}
                 {Object.entries(countryCoordinates).map(([country, coordinates], index) => (
                     <CircleMarker
                         key={index}
                         center={coordinates}
-                        radius={8} // Size of the circle
-                        color="red" // Border color
-                        fillColor="red" // Fill color
-                        fillOpacity={0.8} // Opacity of the fill
+                        radius={8}
+                        color="red"
+                        fillColor="red"
+                        fillOpacity={0.8}
                         eventHandlers={{
                             click: () => handleMarkerClick(country),
                         }}
