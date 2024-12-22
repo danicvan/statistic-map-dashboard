@@ -14,7 +14,7 @@ const MapSection = ({ onSelectData }) => {
             setLoading(false);
 
             if (data) {
-                onSelectData(data); // Pass the data to the parent Dashboard component
+                onSelectData(data);
             } else {
                 alert(`No data found for ${country}`);
             }
