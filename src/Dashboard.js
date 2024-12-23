@@ -11,7 +11,13 @@ const Dashboard = () => {
             return number.toLocaleString();
         }
         return number;
-    }
+    };
+
+    const formatDate = (date) => {
+        if (date === "N/A") return date;
+        const isoDate = new Date(date);
+        return isoDate.toLocaleDateString();
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-blue-50 via-blue-100 to-blue-200">
@@ -32,7 +38,7 @@ const Dashboard = () => {
                                 <strong>Country:</strong> {selectedData[0].country || 'N/A'}
                             </p>
                             <p className="text-gray-700">
-                                <strong>Date:</strong> {latestDate}
+                                <strong>Date:</strong> {formatDate(latestDate)}
                             </p>
                             <p className="text-gray-700">
                                 <strong>Total Cases:</strong> {formatNumber(latestCases?.total) || 'N/A'}
