@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
-import { countryCoordinates } from './countryCoordinates';
 import 'leaflet/dist/leaflet.css';
 
 const MapSection = ({ onSelectData }) => {
     const [loading, setLoading] = useState(false);
+    const [countryCoordinates, setCountryCoordinates] = useState({});
+    const [countryDetails, setCountryDetails] = useState({});
+
+    const formatNumber = (number) => {
+        if (typeof number === 'number') {
+            return number.toLocaleString();
+        }
+        return number;
+    };
 
     const handleMarkerClick = async (country) => {
         setLoading(true);
@@ -24,9 +32,39 @@ const MapSection = ({ onSelectData }) => {
         }
     };
 
+    const fetchAllCountryCoordinates = async () => {
+        const url = 'https://restcountries.com/v3.1/all?fields=name,latlng,capital,population,region';
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const coordinates = {};
+            const details = {};
+
+            data.forEach((country) => {
+                if (country.name?.common && country.latlng) {
+                    coordinates[country.name.common] = country.latlng;
+                    details[country.name.common] = {
+                        capital: country.capital ? country.capital[0] : 'N/A',
+                        population: country.population || 'N/A',
+                        region: country.region || 'N/A',
+                    };
+                }
+            });
+
+            setCountryCoordinates(coordinates);
+            setCountryDetails(details);
+        } catch (error) {
+            console.error('Error fetching country coordinates:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllCountryCoordinates();
+    }, []);
+
     return (
         <div className="w-full h-96 bg-gray-200 rounded-lg overflow-hidden relative">
-            <MapContainer center={[20, 0]} zoom={2} style={{ height: '100%', width: '100%' }}>
+            <MapContainer center={[20, 30]} zoom={2} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -46,7 +84,11 @@ const MapSection = ({ onSelectData }) => {
                         <Popup>
                             <strong>{country}</strong>
                             <br />
-                            Click for COVID-19 data.
+                            <strong>Capital:</strong> {countryDetails[country]?.capital || 'N/A'}
+                            <br />
+                            <strong>Population:</strong> {formatNumber(countryDetails[country]?.population) || 'N/A'}
+                            <br />
+                            <strong>Region:</strong> {countryDetails[country]?.region || 'N/A'}
                         </Popup>
                     </CircleMarker>
                 ))}

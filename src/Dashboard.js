@@ -30,7 +30,7 @@ const Dashboard = () => {
                     <MapSection onSelectData={(data) => setSelectedData(data)} />
                 </section>
 
-                {selectedData && (
+                {selectedData && selectedData.length > 0 && (
                     <section className="mt-8">
                         <div className="p-6 bg-white rounded-lg shadow-xl border border-gray-200">
                             <h2 className="text-xl font-semibold text-indigo-700">COVID-19 Data</h2>
